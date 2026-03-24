@@ -1,0 +1,119 @@
+#!smake
+#
+# Makefile.irixfx — Build Mesa FX demos for IRIX 6.5 (no X11, Voodoo/Glide)
+#
+# Run from MesaFX_demos_irix/:
+#   smake -f Makefile.irixfx MESA_ROOT=/path/to/MesaFX_irix
+#
+# MESA_ROOT must point to the MesaFX_irix tree containing:
+#   include/GL/gl.h, glu.h, glut.h
+#   lib32/libGL.a, libGLU.a, libglut.a
+#
+# Demos are built into bin/
+#
+# Targets:
+#   all        build everything (default)
+#   demos      build demos/ only
+#   clean      remove bin/
+#
+
+# --------------------------------------------------------------------------
+# Required — pass on command line:
+#   smake -f Makefile.irixfx MESA_ROOT=/usr/sdd/3dfx_irix/MesaFX_irix
+# --------------------------------------------------------------------------
+MESA_ROOT =
+
+# --------------------------------------------------------------------------
+# Toolchain
+# --------------------------------------------------------------------------
+CC     = cc
+CFLAGS = -n32 -mips4 -O2 -woff 84,1174,1209,1521
+
+INCS   = -I$(MESA_ROOT)/include
+LIBS   = -L$(MESA_ROOT)/lib32 -lglut -lGLU -lGL -L/usr/lib32 -lglide2x -lm
+
+ALL_CFLAGS = $(CFLAGS) $(INCS)
+BINDIR     = bin
+
+# --------------------------------------------------------------------------
+# Demo lists
+# --------------------------------------------------------------------------
+DEMOS = \
+	$(BINDIR)/bounce \
+	$(BINDIR)/geartrain \
+	$(BINDIR)/gears \
+	$(BINDIR)/glinfo \
+	$(BINDIR)/gltestperf \
+	$(BINDIR)/glutfx \
+	$(BINDIR)/morph3d \
+	$(BINDIR)/paltex \
+	$(BINDIR)/ray \
+	$(BINDIR)/renormal \
+	$(BINDIR)/spectex \
+	$(BINDIR)/terrain \
+	$(BINDIR)/texenv \
+	$(BINDIR)/texobj \
+	$(BINDIR)/trispd
+
+# --------------------------------------------------------------------------
+# Targets
+# --------------------------------------------------------------------------
+.PHONY: all demos data clean check
+
+all: check $(BINDIR) data demos
+
+demos: $(DEMOS)
+
+data:
+	cp demos/geartrain.dat demos/terrain.dat demos/isosurf.dat $(BINDIR)/
+
+check:
+	@if [ -z "$(MESA_ROOT)" ]; then \
+	    echo ""; \
+	    echo "ERROR: MESA_ROOT is not set."; \
+	    echo "Usage: smake -f Makefile.irixfx MESA_ROOT=/path/to/MesaFX_irix"; \
+	    echo ""; \
+	    exit 1; \
+	fi
+
+$(BINDIR):
+	-mkdir $(BINDIR)
+
+clean:
+	rm -rf $(BINDIR)
+
+# --------------------------------------------------------------------------
+# demos/ rules
+# Note: source path written explicitly — IRIX smake $< only works in
+# suffix rules, not in explicit rules targeting extension-less binaries.
+# --------------------------------------------------------------------------
+$(BINDIR)/bounce: demos/bounce.c
+	$(CC) $(ALL_CFLAGS) demos/bounce.c $(LIBS) -o $(BINDIR)/bounce
+$(BINDIR)/geartrain: demos/geartrain.c
+	$(CC) $(ALL_CFLAGS) demos/geartrain.c $(LIBS) -o $(BINDIR)/geartrain
+$(BINDIR)/gears: demos/gears.c
+	$(CC) $(ALL_CFLAGS) demos/gears.c $(LIBS) -o $(BINDIR)/gears
+$(BINDIR)/glinfo: demos/glinfo.c
+	$(CC) $(ALL_CFLAGS) demos/glinfo.c $(LIBS) -o $(BINDIR)/glinfo
+$(BINDIR)/gltestperf: demos/gltestperf.c
+	$(CC) $(ALL_CFLAGS) demos/gltestperf.c $(LIBS) -o $(BINDIR)/gltestperf
+$(BINDIR)/glutfx: demos/glutfx.c
+	$(CC) $(ALL_CFLAGS) demos/glutfx.c $(LIBS) -o $(BINDIR)/glutfx
+$(BINDIR)/morph3d: demos/morph3d.c
+	$(CC) $(ALL_CFLAGS) demos/morph3d.c $(LIBS) -o $(BINDIR)/morph3d
+$(BINDIR)/paltex: demos/paltex.c
+	$(CC) $(ALL_CFLAGS) demos/paltex.c $(LIBS) -o $(BINDIR)/paltex
+$(BINDIR)/ray: demos/ray.c
+	$(CC) $(ALL_CFLAGS) demos/ray.c $(LIBS) -o $(BINDIR)/ray
+$(BINDIR)/renormal: demos/renormal.c
+	$(CC) $(ALL_CFLAGS) demos/renormal.c $(LIBS) -o $(BINDIR)/renormal
+$(BINDIR)/spectex: demos/spectex.c
+	$(CC) $(ALL_CFLAGS) demos/spectex.c $(LIBS) -o $(BINDIR)/spectex
+$(BINDIR)/terrain: demos/terrain.c
+	$(CC) $(ALL_CFLAGS) demos/terrain.c $(LIBS) -o $(BINDIR)/terrain
+$(BINDIR)/texenv: demos/texenv.c
+	$(CC) $(ALL_CFLAGS) demos/texenv.c $(LIBS) -o $(BINDIR)/texenv
+$(BINDIR)/texobj: demos/texobj.c
+	$(CC) $(ALL_CFLAGS) demos/texobj.c $(LIBS) -o $(BINDIR)/texobj
+$(BINDIR)/trispd: demos/trispd.c
+	$(CC) $(ALL_CFLAGS) demos/trispd.c $(LIBS) -o $(BINDIR)/trispd
